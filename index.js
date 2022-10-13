@@ -10,11 +10,11 @@ const cors = require('cors');
 const UserType = new GraphQLObjectType({
     name: "User",
     fields: () => ({
-        id: {type: GraphQLInt},
-        firstName: {type: GraphQLString},
-        lastName: {type: GraphQLString},
-        email: {type: GraphQLString},
-        password: {type: GraphQLString},
+        id: { type: GraphQLInt },
+        firstName: { type: GraphQLString },
+        lastName: { type: GraphQLString },
+        email: { type: GraphQLString },
+        password: { type: GraphQLString },
     })
 })
 const RootQuery = new GraphQLObjectType({
@@ -22,14 +22,14 @@ const RootQuery = new GraphQLObjectType({
     fields: {
         getAllUsers: {
             type: new GraphQLList(UserType),
-            args: { id: {type: GraphQLInt}},
+            args: { id: { type: GraphQLInt } },
             resolve(parent, args) {
                 return userData
             }
         },
         getUser: {
             type: UserType,
-            args: { id: {type: GraphQLInt}},
+            args: { id: { type: GraphQLInt } },
             resolve(parent, args) {
                 return userData.find((user) => user.id === args.id)
             }
@@ -42,14 +42,14 @@ const Mutation = new GraphQLObjectType({
         createUser: {
             type: UserType,
             args: {
-                firstName: {type: GraphQLString},
-                lastName: {type: GraphQLString},
-                email: {type: GraphQLString},
-                password: {type: GraphQLString},
+                firstName: { type: GraphQLString },
+                lastName: { type: GraphQLString },
+                email: { type: GraphQLString },
+                password: { type: GraphQLString },
             },
             resolve(parent, args) {
                 userData.push({
-                    id: userData.length +1, 
+                    id: userData.length + 1,
                     firstName: args.firstName,
                     lastName: args.lastName,
                     email: args.email,
@@ -62,15 +62,15 @@ const Mutation = new GraphQLObjectType({
     }
 });
 
-const schema = new graphql.GraphQLSchema({query: RootQuery, mutation: Mutation})
+const schema = new graphql.GraphQLSchema({ query: RootQuery, mutation: Mutation })
 // app.use(cors());
 app.use('/graphql',
-cors(),
-graphqlHTTP({
-    schema,
-    graphiql: true,
-},
-))
+    cors(),
+    graphqlHTTP({
+        schema,
+        graphiql: true,
+    },
+    ))
 
 app.listen(PORT, () => {
     console.log('Server is running, listen port', PORT);
