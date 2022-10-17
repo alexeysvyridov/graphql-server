@@ -1,22 +1,33 @@
 const { GraphQLObjectType, GraphQLInt, GraphQLList } = require('graphql');
 const {UserType} = require('./types');
-const userData = require('../MOCK_DATA.json');
+const User = require('../mongo');
+
 const RootQuery = new GraphQLObjectType({
   name: 'RootQueryType',
   fields: {
       getAllUsers: {
           type: new GraphQLList(UserType),
           args: { id: { type: GraphQLInt } },
-          resolve(parent, args) {
-              return userData
+            resolve(parent, args) {
+                return new Promise((resolve,reject)=>{
+                    User.find((err,users)=>{
+                        if(err) reject(err);
+                        else resolve(users);
+                    })
+                })
           }
       },
       getUser: {
           type: UserType,
           args: { id: { type: GraphQLInt } },
           resolve(parent, args) {
-              return userData.find((user) => user.id === args.id)
-          }
+            return new Promise((resolve,reject)=>{
+                User.findOne({id: args.id},(err,user)=>{
+                    if(err) reject(err);
+                    else resolve(user);
+                })
+            })
+        }
       }
   }
 });
