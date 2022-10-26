@@ -36,6 +36,23 @@ const Mutation = new GraphQLObjectType({
               throw new Error(ErrorNames.SERVER_ERROR)
             }
           }
+      },
+      deleteUser: {
+        type: UserType,
+        args: {
+          _id: { type: GraphQLString }
+        },
+        async resolve(parent, args) {
+          if (!args._id) {
+            throw Error(ErrorNames.VALIDATION_ERROR)
+          }
+          console.log(args);
+          try {
+            await User.deleteOne({ _id: args._id })
+          } catch (error) {
+            console.log(error);
+          }
+        }
       }
   }
 });

@@ -1,6 +1,7 @@
 const ErrorNames = {
   USER_ALREADY_EXISTS: 'USER_ALREADY_EXISTS',
-  SERVER_ERROR: 'SERVER_ERROR'
+  SERVER_ERROR: 'SERVER_ERROR',
+  VALIDATION_ERROR: 'VALIDATION_ERROR',
 };
 
 const ErrorTypes = {
@@ -11,6 +12,10 @@ const ErrorTypes = {
   SERVER_ERROR: {
     message: 'Server error.',
     statusCode: 500
+  },
+  VALIDATION_ERROR: {
+    message: 'Validation Error',
+    statusCode: 400
   }
 }
 const getErrorCode = (errorName) => {

@@ -7,8 +7,7 @@ const RootQuery = new GraphQLObjectType({
   fields: {
       getAllUsers: {
           type: new GraphQLList(UserType),
-          args: { _id: { type: GraphQLInt } },
-            resolve(parent, args) {
+            resolve() {
                 return new Promise((resolve,reject)=>{
                     User.find((err,users)=>{
                         if(err) reject(err);
