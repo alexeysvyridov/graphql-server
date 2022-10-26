@@ -1,4 +1,4 @@
-const { GraphQLObjectType, GraphQLInt, GraphQLList } = require('graphql');
+const { GraphQLObjectType, GraphQLInt, GraphQLList, GraphQLString } = require('graphql');
 const {UserType} = require('./types');
 const User = require('../mongo');
 
@@ -7,7 +7,7 @@ const RootQuery = new GraphQLObjectType({
   fields: {
       getAllUsers: {
           type: new GraphQLList(UserType),
-          args: { id: { type: GraphQLInt } },
+          args: { _id: { type: GraphQLInt } },
             resolve(parent, args) {
                 return new Promise((resolve,reject)=>{
                     User.find((err,users)=>{
@@ -19,10 +19,10 @@ const RootQuery = new GraphQLObjectType({
       },
       getUser: {
           type: UserType,
-          args: { id: { type: GraphQLInt } },
+          args: { _id: { type: GraphQLString } },
           resolve(parent, args) {
             return new Promise((resolve,reject)=>{
-                User.findOne({id: args.id},(err,user)=>{
+                User.findOne({_id: args._id},(err,user)=>{
                     if(err) reject(err);
                     else resolve(user);
                 })

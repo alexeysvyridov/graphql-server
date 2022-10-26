@@ -1,8 +1,9 @@
 
 const { GraphQLObjectType, GraphQLString } = require('graphql');
 const {UserType} = require('./types');
-const userData = require('../MOCK_DATA.json');
-
+const User = require('../mongo');
+const mongoose = require('mongoose');
+const { ErrorNames } = require('../consts/errors');
 const Mutation = new GraphQLObjectType({
   name: 'Mutation',
   fields: {
@@ -14,16 +15,26 @@ const Mutation = new GraphQLObjectType({
               email: { type: GraphQLString },
               password: { type: GraphQLString },
           },
-          resolve(parent, args) {
-              userData.push({
-                  id: userData.length + 1,
-                  firstName: args.firstName,
-                  lastName: args.lastName,
-                  email: args.email,
-                  password: args.password
-              })
+          async resolve(parent, args) {
+            const isExist = await User.findOne({email: args.email});
 
+            if (isExist) {
+              throw new Error(ErrorNames.USER_ALREADY_EXISTS)
+            }
+
+            try {
+              const user = await User.create({
+                firstName: args.firstName,
+                lastName: args.lastName,
+                email: args.email,
+                password: args.password
+              })
+              console.log('user created', user);
               return args
+            } catch (error) {
+              console.log(error);
+              throw new Error(ErrorNames.SERVER_ERROR)
+            }
           }
       }
   }

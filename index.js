@@ -6,6 +6,7 @@ const { graphqlHTTP } = require('express-graphql');
 const cors = require('cors');
 const {RootQuery } = require('./query/queries');
 const {Mutation } = require('./query/mutations');
+const { getErrorCode } = require("./consts/errors");
 const schema = new graphql.GraphQLSchema({ query: RootQuery, mutation: Mutation });
 
 app.listen(PORT, async() => {
@@ -17,5 +18,9 @@ app.use('/graphql',
     graphqlHTTP({
         schema,
         graphiql: true,
+        customFormatErrorFn: (err) => {
+            const error = getErrorCode(err.message);
+            return ({message: error.message, statusCode: error.statusCode})
+        }
     },
 ));
