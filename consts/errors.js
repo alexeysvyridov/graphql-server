@@ -2,6 +2,7 @@ const ErrorNames = {
   USER_ALREADY_EXISTS: 'USER_ALREADY_EXISTS',
   SERVER_ERROR: 'SERVER_ERROR',
   VALIDATION_ERROR: 'VALIDATION_ERROR',
+  LOGIN_ERROR: 'LOGIN_ERROR'
 };
 
 const ErrorTypes = {
@@ -15,6 +16,10 @@ const ErrorTypes = {
   },
   VALIDATION_ERROR: {
     message: 'Validation Error',
+    statusCode: 400
+  },
+  LOGIN_ERROR: {
+    message: 'email or password is invalid',
     statusCode: 400
   }
 }

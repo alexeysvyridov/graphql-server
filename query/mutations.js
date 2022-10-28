@@ -1,9 +1,10 @@
 
-const { GraphQLObjectType, GraphQLString } = require('graphql');
+const { GraphQLObjectType, GraphQLString, GraphQLSchema } = require('graphql');
 const {UserType} = require('./types');
 const User = require('../mongo');
 const mongoose = require('mongoose');
 const { ErrorNames } = require('../consts/errors');
+const bcrypt = require('bcrypt')
 const Mutation = new GraphQLObjectType({
   name: 'Mutation',
   fields: {
@@ -42,13 +43,43 @@ const Mutation = new GraphQLObjectType({
         args: {
           _id: { type: GraphQLString }
         },
-        async resolve(parent, args) {
+        async resolve(_, args) {
           if (!args._id) {
             throw Error(ErrorNames.VALIDATION_ERROR)
           }
           console.log(args);
           try {
             await User.deleteOne({ _id: args._id })
+          } catch (error) {
+            console.log(error);
+          }
+        }
+      },
+      signup: {
+        type: UserType,
+        args: {
+          firstName:  { type: GraphQLString },
+          lastName:  { type: GraphQLString },
+          email:  { type: GraphQLString },
+          password: {type: GraphQLString}
+        },
+        async resolve (parent, args) {
+          if (!(args.password && args.email)) {
+            throw Error(ErrorNames.LOGIN_ERROR)
+          }
+
+          const user = new User({
+            firstName: args.firstName,
+            lastName: args.lastName
+          });
+
+          const salt = await bcrypt.genSalt(10);
+          user.password = await bcrypt.hash(args.password, salt);
+
+          try {
+            const resp = await user.save();
+            console.log("User was registred!");
+            return resp
           } catch (error) {
             console.log(error);
           }
