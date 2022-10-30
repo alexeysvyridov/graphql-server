@@ -1,10 +1,29 @@
 
 const { GraphQLObjectType, GraphQLString, GraphQLSchema } = require('graphql');
-const {UserType} = require('./types');
+const {UserType, AuthType} = require('./types');
 const User = require('../mongo');
 const mongoose = require('mongoose');
 const { ErrorNames } = require('../consts/errors');
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
+const verifyUserLogin = async (email, password) => {
+    const user = await User.findOne({email: email});
+    if (!user) {
+      throw Error(ErrorNames.USER_IS_NOT_EXISTS)
+    }
+
+    if (await bcrypt.compare(password, user.password)) {
+      const token = jwt.sign({id: user._id, email: user.email, type: 'user' }, 'my-secret', {expiresIn: '10h'})
+      return {
+        status: 'ok',
+        user: user,
+        token
+      }
+    }
+    console.log(error);
+    throw Error(ErrorNames.SERVER_ERROR)
+}
 const Mutation = new GraphQLObjectType({
   name: 'Mutation',
   fields: {
@@ -70,7 +89,8 @@ const Mutation = new GraphQLObjectType({
 
           const user = new User({
             firstName: args.firstName,
-            lastName: args.lastName
+            lastName: args.lastName,
+            email: args.email,
           });
 
           const salt = await bcrypt.genSalt(10);
@@ -84,7 +104,30 @@ const Mutation = new GraphQLObjectType({
             console.log(error);
           }
         }
+      },
+      login: {
+        type: AuthType,
+        args: {
+          email:  { type: GraphQLString },
+          password: {type: GraphQLString}
+        },
+        async resolve (parent, args) {
+
+          if (!(args.password && args.email)) {
+            throw Error(ErrorNames.LOGIN_ERROR)
+          }
+           const response = await verifyUserLogin(args.email, args.password);
+           if( response.status === 'ok') {
+            return { user: response?.user, token: response.token }
+           }
+
+           return  {
+            user: undefined,
+            token: null
+           }
+          
       }
+    }
   }
 });
 
