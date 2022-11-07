@@ -37,7 +37,7 @@ const Mutation = new GraphQLObjectType({
           },
           async resolve(parent, args) {
             const isExist = await User.findOne({email: args.email});
-
+            console.log(isExist);
             if (isExist) {
               throw new Error(ErrorNames.USER_ALREADY_EXISTS)
             }
@@ -112,19 +112,15 @@ const Mutation = new GraphQLObjectType({
           password: {type: GraphQLString}
         },
         async resolve (parent, args) {
-
           if (!(args.password && args.email)) {
-            throw Error(ErrorNames.LOGIN_ERROR)
+            throw new Error(ErrorNames.LOGIN_ERROR)
           }
            const response = await verifyUserLogin(args.email, args.password);
            if( response.status === 'ok') {
             return { user: response?.user, token: response.token }
            }
 
-           return  {
-            user: undefined,
-            token: null
-           }
+           throw new Error(ErrorNames.SERVER_ERROR)
           
       }
     }

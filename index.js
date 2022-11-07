@@ -20,6 +20,7 @@ app.use('/graphql',
         graphiql: true,
         customFormatErrorFn: (err) => {
             const error = getErrorCode(err.message);
+            console.log(error);
             return ({message: error.message, statusCode: error.statusCode})
         }
     },
